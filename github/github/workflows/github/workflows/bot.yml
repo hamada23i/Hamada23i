@@ -1,0 +1,47 @@
+name: 🤖 Crypto Trading Bot
+
+on:
+  schedule:
+    # يشغل كل 6 ساعات (4 مرات يومياً)
+    - cron: '0 */6 * * *'
+  
+  # تشغيل يدوي من GitHub
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'نوع المسح'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+        - comprehensive
+        - quick
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 تحميل الكود
+      uses: actions/checkout@v4
+
+    - name: 🐍 إعداد Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: 📦 تثبيت المتطلبات
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: 🚀 تشغيل البوت
+      env:
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+        SYMBOLS: ${{ secrets.SYMBOLS }}
+      run: |
+        python main.py
+
+    - name: ✅ تأكيد التشغيل
+      run: echo "🤖 تم تشغيل البوت بنجاح - $(date)"
